@@ -1,40 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NServiceBus.Test.Application;
+using NServiceBus.Test.Models;
+using SFA.DAS.UnitOfWork;
 
 namespace NServiceBus.Test.Controllers
 {
-    //[Route("Home/Index/")]
     public class HomeController : Controller
     {
+        private IUnitOfWorkContext _unitOfWorkContext;
+
         private ISender _sender;
-        public HomeController(ISender sender)
+        public HomeController(ISender sender, IUnitOfWorkContext unitOfWorkContext)
         {
             _sender = sender;
+            _unitOfWorkContext = unitOfWorkContext;
         }
 
-        // GET: Home
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            return View(new MessageViewModel { Message = "Your message here" });
         }
 
-        // POST: Home/SEND/
-        //[HttpPost]
-        //[Route("Send")]
-        //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(MessageViewModel messageModel)
         {
             try
             {
-                var message = "This better work";
+                var message = messageModel.Message ?? "Default mesage";
                 await _sender.Send(message);
 
-                return RedirectToAction(nameof(Index));
+                return View(messageModel);
             }
             catch
             {

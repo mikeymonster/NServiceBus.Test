@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Common;
+using System.Data.SqlClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using SFA.DAS.UnitOfWork;
 using SFA.DAS.UnitOfWork.Mvc;
 using SFA.DAS.NServiceBus.StructureMap;
 using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
+using SFA.DAS.NServiceBus.SqlServer;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;
 using StructureMap;
@@ -42,31 +44,41 @@ namespace NServiceBus.Test
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseUnitOfWork();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddScoped<DbConnection>(provider 
+                => new SqlConnection(
+                    Configuration.GetConnectionString("DatabaseConnectionString")));
 
+            //Need the serviceprovider so we can get the DBConnection back 
+            var sp = services.BuildServiceProvider();
+
+            services.AddMvc();
+            
             var container = ConfigureIOC(services);
 
             var nServiceBusSettings = new NServiceBusConfiguration();
             Configuration.GetSection("NServiceBusConfiguration").Bind(nServiceBusSettings);
 
-            //bool.TryParse(Configuration.GetValue<bool>(), out var useLearningTransport);
             var useLearningTransport = Configuration.GetValue<bool>("UseLearningTransport");
-
+            
             var endpointConfiguration = new EndpointConfiguration(nServiceBusSettings.Endpoint)
                 .UseAzureServiceBusTransport(useLearningTransport, () => nServiceBusSettings.ServiceBusConnectionString, r => { })
+                .UseErrorQueue()
+                .UseInstallers()
                 .UseLicense(nServiceBusSettings.LicenceText)
                 .UseInstallers()
-                //.UseSqlServerPersistence(() => sp.GetService<DbConnection>())
+                .UseSqlServerPersistence(() => sp.GetService<DbConnection>())
                 .UseStructureMapBuilder(container)
                 .UseNewtonsoftJsonSerializer()
                 //.UseNLogFactory()
-                //.UseOutbox()
+                .UseOutbox()
                 .UseUnitOfWork();
 
             services.AddNServiceBus(endpointConfiguration);

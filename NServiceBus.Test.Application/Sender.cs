@@ -4,6 +4,8 @@ using NServiceBus.Test.Domain.Configuration;
 using NServiceBus.Test.Domain.Events;
 //using SFA.DAS.NLog.Logger;
 using SFA.DAS.NServiceBus;
+using SFA.DAS.UnitOfWork;
+
 //using SFA.DAS.UnitOfWork;
 
 namespace NServiceBus.Test.Application
@@ -18,16 +20,15 @@ namespace NServiceBus.Test.Application
         //private ILog _log;
         private NServiceBusConfiguration _nServiceBusConfig;
         private IEventPublisher _publisher;
-        //private IUnitOfWorkContext _unitOfWorkContext;
+        private IUnitOfWorkContext _unitOfWorkContext;
 
-        public Sender(NServiceBusConfiguration nServiceBusConfig, IEventPublisher publisher)
-        //, IUnitOfWorkContext unitOfWorkContext
+        public Sender(NServiceBusConfiguration nServiceBusConfig, IEventPublisher publisher, IUnitOfWorkContext unitOfWorkContext)
         //, ILog log)
         {
             //_log = log;
             _nServiceBusConfig = nServiceBusConfig;
             _publisher = publisher;
-            //_unitOfWorkContext = unitOfWorkContext;
+            _unitOfWorkContext = unitOfWorkContext;
         }
 
         public async Task Send(string message)

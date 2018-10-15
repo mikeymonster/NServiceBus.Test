@@ -1,4 +1,5 @@
-﻿
+﻿@model MessageViewModel
+
 @{
     Layout = null;
 }
@@ -11,14 +12,14 @@
     <title>Index</title>
 </head>
 <body>
-    @*<form asp-controller="Home" asp-action="Send" method="post">
-        <div>
-            <input class="button" type="submit" value="Send a message">
-        </div>
-    </form>*@
+    <form asp-action="Index" method="post">
+        <label asp-for="Message">Message:</label>
+        <input asp-for="Message" value="@Model.Message" />
+        <input class="button" type="submit" value="Send message">
+    </form>
 
-    <div>
-        <a href="~/Home/Send">Send</a>
-    </div>
+    @*<div>
+            <a href="~/Home/Send">Send</a>
+        </div>*@
 </body>
 </html>
