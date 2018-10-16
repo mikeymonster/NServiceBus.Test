@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Test.Domain.Configuration;
 using NServiceBus.Test.Domain.Events;
 using NServiceBus.Test.Domain.Messages;
@@ -98,57 +99,56 @@ namespace NServiceBus.Test.Console
             var message = new StringMessage(messageText);
             await endpointInstance.Send(message, options)
                 .ConfigureAwait(false);
+
+            System.Console.WriteLine($"Sent message: {message}");
         }
 
         public static async Task SendMessageToAzure(string messageText, NServiceBusConfiguration nServiceBusSettings, bool useLearningTransport = false)
         {
-            var messageAssembly = typeof(StringMessage).GetAssembly();
-
-            var localEndpointConfiguration = new EndpointConfiguration(nServiceBusSettings.Endpoint)
+            var endpointConfiguration = new EndpointConfiguration("ClientEndpoint")
                 .UseLicense(nServiceBusSettings.LicenceText)
-                    .UseAzureServiceBusTransport(false,
-                        () => nServiceBusSettings.ServiceBusConnectionString,
-                        r => { r.RouteToEndpoint(typeof(StringMessage), nServiceBusSettings.Endpoint); })
-                        //r => { r.RouteToEndpoint(messageAssembly, nServiceBusSettings.Endpoint); })
-                //.UseErrorQueue()
-                //.UseInstallers()
-                .UseNewtonsoftJsonSerializer()
-            ;
+                .UseAzureServiceBusTransport(false,
+                    () => nServiceBusSettings.ServiceBusConnectionString,
+                    r => r.RouteToEndpoint(typeof(StringMessage).GetAssembly(), nServiceBusSettings.Endpoint))
+                .UseNewtonsoftJsonSerializer();
 
-            //var serialization = localEndpointConfiguration.UseSerialization<NewtonsoftSerializer>();
-            //serialization.WriterCreator(s => new JsonTextWriter(new StreamWriter(s, new UTF8Encoding(false))));
+            endpointConfiguration.SendOnly();
 
-            //var transportConfiguration = localEndpointConfiguration.UseAzureServiceBusTransport(false,
-            //    () => nServiceBusSettings.ServiceBusConnectionString, 
-            //    r => { r.RouteToEndpoint(typeof(StringMessage), nServiceBusSettings.Endpoint); });
-
-            //transportConfiguration.Us..Routing().RouteToEndpoint(typeof(PingCommand), DestinationAddress);
-            localEndpointConfiguration.SendOnly();
-
-            var localEndpointInstance = await Endpoint.Start(localEndpointConfiguration)
+            var localEndpointInstance = await Endpoint.Start(endpointConfiguration)
                 .ConfigureAwait(false);
-
-            //var remoteEndpointConfiguration = new EndpointConfiguration(nServiceBusSettings.Endpoint);
-            //remoteEndpointConfiguration.License(nServiceBusSettings.LicenceText);
-            //remoteEndpointConfiguration.UseAzureServiceBusTransport(false,
-            //    () => nServiceBusSettings.ServiceBusConnectionString, r => { });
-
-            //var options = new SendOptions();
-            //options.SetDestination(nServiceBusSettings.Endpoint);
 
             var message = new StringMessage(messageText);
             await localEndpointInstance.Send(message) //, options)
                 .ConfigureAwait(false);
+
+            System.Console.WriteLine($"Sent message: {message}");
         }
 
         public static async Task PublishEventToAzure(string messageText, NServiceBusConfiguration nServiceBusSettings,
             bool useLearningTransport = false)
         {
+            var endpointConfiguration = new EndpointConfiguration(nServiceBusSettings.Endpoint)
+                    .UseLicense(nServiceBusSettings.LicenceText)
+                    .UseAzureServiceBusTransport(false, () => nServiceBusSettings.ServiceBusConnectionString,
+                    r =>
+                    {
+                        r.RouteToEndpoint(typeof(StringMessageEvent), nServiceBusSettings.Endpoint + "/my-topic");
+                    })
+                .UseNewtonsoftJsonSerializer();
 
+            endpointConfiguration.SendOnly();
 
+            var endpointInstance = await Endpoint.Start(endpointConfiguration)
+                .ConfigureAwait(false);
+
+            //var options = new PublishOptions();
+            
             var message = new StringMessageEvent(messageText);
-            //await endpointInstance.Publish(message)
-            //    .ConfigureAwait(false);
+            
+            await endpointInstance.Publish(message) //, options)
+                .ConfigureAwait(false);
+
+            System.Console.WriteLine($"Published message: {message}");
         }
     }
 }

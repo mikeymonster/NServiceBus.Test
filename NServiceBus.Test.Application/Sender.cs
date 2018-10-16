@@ -20,6 +20,7 @@ namespace NServiceBus.Test.Application
         //private ILog _log;
         private NServiceBusConfiguration _nServiceBusConfig;
         private IEventPublisher _publisher;
+        
         private IUnitOfWorkContext _unitOfWorkContext;
 
         public Sender(NServiceBusConfiguration nServiceBusConfig, IEventPublisher publisher, IUnitOfWorkContext unitOfWorkContext)
