@@ -36,9 +36,9 @@ namespace NServiceBus.Test.Application
             try
             {
                 //_log.Info($"Sender is sending message '{message}'.");
-                var messageCarrier = new StringMessageEvent { Message = message };
+                var messageEvent = new StringMessageEvent(message);
 
-                await _publisher.Publish(messageCarrier);
+                await _publisher.Publish(messageEvent);
             }
             catch (Exception ex)
             {
