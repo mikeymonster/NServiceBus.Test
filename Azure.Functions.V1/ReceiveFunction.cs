@@ -26,7 +26,7 @@ namespace Azure.Functions.V1
             catch (Exception e)
             {
                 log.Error($"Unable to deserialize message body for StringMessage. messageId: {message.MessageId} {{ID={executionContext.InvocationId}}}", e);
-                //message.Defer();
+                message.Defer();
             }
         }
 
@@ -40,14 +40,14 @@ namespace Azure.Functions.V1
             {
                 log.Info($"C# ServiceBus topic trigger receiving message: {message.MessageId}");
 
-                var stringMessage = message.DeserializeJsonMessage<StringMessageEvent>();
+                var stringMessageEvent = message.DeserializeJsonMessage<StringMessageEvent>();
 
-                log.Info($"C# ServiceBus topic trigger function processed message: {stringMessage}");
+                log.Info($"C# ServiceBus topic trigger function processed event: {stringMessageEvent}");
             }
             catch (Exception e)
             {
                 log.Error($"Unable to deserialize message body for StringMessageEvent. messageId: {message.MessageId} {{ID={executionContext.InvocationId}}}", e);
-                //message.Defer();
+                message.Defer();
             }
         }
     }

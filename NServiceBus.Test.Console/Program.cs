@@ -114,11 +114,11 @@ namespace NServiceBus.Test.Console
 
             endpointConfiguration.SendOnly();
 
-            var localEndpointInstance = await Endpoint.Start(endpointConfiguration)
+            var endpointInstance = await Endpoint.Start(endpointConfiguration)
                 .ConfigureAwait(false);
 
             var message = new StringMessage(messageText);
-            await localEndpointInstance.Send(message) //, options)
+            await endpointInstance.Send(message) //, options)
                 .ConfigureAwait(false);
 
             System.Console.WriteLine($"Sent message: {message}");
@@ -148,7 +148,7 @@ namespace NServiceBus.Test.Console
             await endpointInstance.Publish(message) //, options)
                 .ConfigureAwait(false);
 
-            System.Console.WriteLine($"Published message: {message}");
+            System.Console.WriteLine($"Published event: {message}");
         }
     }
 }

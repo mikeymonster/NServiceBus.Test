@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus.Test.Domain.Configuration;
 using NServiceBus.Test.Domain.Events;
+using NServiceBus.Test.Domain.Messages;
 //using SFA.DAS.NLog.Logger;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.UnitOfWork;
@@ -19,16 +20,23 @@ namespace NServiceBus.Test.Application
     {
         //private ILog _log;
         private NServiceBusConfiguration _nServiceBusConfig;
-        private IEventPublisher _publisher;
-        
         private IUnitOfWorkContext _unitOfWorkContext;
 
-        public Sender(NServiceBusConfiguration nServiceBusConfig, IEventPublisher publisher, IUnitOfWorkContext unitOfWorkContext)
+
+        public IEventPublisher Publisher { get; private set; }
+
+        public IEndpointInstance EndpointInstance { get; private set; }
+
+        public Sender(NServiceBusConfiguration nServiceBusConfig,
+                IEndpointInstance endpointInstance,
+                IEventPublisher publisher,
+                IUnitOfWorkContext unitOfWorkContext)
         //, ILog log)
         {
             //_log = log;
             _nServiceBusConfig = nServiceBusConfig;
-            _publisher = publisher;
+            Publisher = publisher;
+            EndpointInstance = endpointInstance;
             _unitOfWorkContext = unitOfWorkContext;
         }
 
@@ -37,9 +45,15 @@ namespace NServiceBus.Test.Application
             try
             {
                 //_log.Info($"Sender is sending message '{message}'.");
-                var messageEvent = new StringMessageEvent(message);
+                //var messageCommand = new StringMessage(message);
+                //System.Console.WriteLine($"Sending message: {messageCommand}");
+                //await EndpointInstance.Send(messageCommand);
+                //System.Console.WriteLine($"Sent message: {messageCommand}");
 
-                await _publisher.Publish(messageEvent);
+                var messageEvent = new StringMessageEvent(message);
+                System.Console.WriteLine($"Publishing event: {messageEvent}");
+                await Publisher.Publish(messageEvent);
+                System.Console.WriteLine($"Published event: {messageEvent}");
             }
             catch (Exception ex)
             {

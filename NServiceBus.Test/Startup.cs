@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Test.Application;
 using NServiceBus.Test.Domain.Configuration;
+using NServiceBus.Test.Domain.Events;
+using NServiceBus.Test.Domain.Messages;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
 //using SFA.DAS.NServiceBus.SqlServer;
@@ -18,6 +20,7 @@ using SFA.DAS.NServiceBus.SqlServer;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;
 using StructureMap;
+using StructureMap.TypeRules;
 
 namespace NServiceBus.Test
 {
@@ -37,46 +40,76 @@ namespace NServiceBus.Test
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
-
-            app.UseUnitOfWork();
+            app.UseStaticFiles()
+                .UseUnitOfWork()
+                .UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller=Home}/{action=Index}/{id?}");
+                });
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<DbConnection>(provider 
-                => new SqlConnection(
-                    Configuration.GetConnectionString("DatabaseConnectionString")));
+            services.AddScoped<DbConnection>(provider
+                =>
+            {
+                Console.WriteLine($"Getting a new SqlConnection  - '{Configuration.GetConnectionString("DatabaseConnectionString")}'");
+                return new SqlConnection(
+                    Configuration.GetConnectionString("DatabaseConnectionString"));
+            });
 
             //Need the serviceprovider so we can get the DBConnection back 
             var sp = services.BuildServiceProvider();
 
             services.AddMvc();
-            
+
             var container = ConfigureIOC(services);
 
             var nServiceBusSettings = new NServiceBusConfiguration();
             Configuration.GetSection("NServiceBusConfiguration").Bind(nServiceBusSettings);
 
             var useLearningTransport = Configuration.GetValue<bool>("UseLearningTransport");
-            
+
             var endpointConfiguration = new EndpointConfiguration(nServiceBusSettings.Endpoint)
-                .UseAzureServiceBusTransport(useLearningTransport, () => nServiceBusSettings.ServiceBusConnectionString, r => { })
-                .UseErrorQueue()
-                .UseInstallers()
+                //.UseAzureServiceBusTransport(useLearningTransport, () => nServiceBusSettings.ServiceBusConnectionString, r => { })
+                .UseAzureServiceBusTransport(useLearningTransport,
+                    () => nServiceBusSettings.ServiceBusConnectionString,
+                    r =>
+                    {
+                        r.RouteToEndpoint(typeof(StringMessage),
+                            nServiceBusSettings.Endpoint);
+                        r.RouteToEndpoint(typeof(StringMessageEvent),
+                            nServiceBusSettings.Endpoint + "/my-topic");
+                    })
                 .UseLicense(nServiceBusSettings.LicenceText)
                 .UseInstallers()
-                .UseSqlServerPersistence(() => sp.GetService<DbConnection>())
+                .UseSqlServerPersistence(
+                    () =>
+                    {
+                        //sp.GetService<DbConnection>();
+
+                        var connection = sp.GetService<DbConnection>();
+
+                        if (String.IsNullOrEmpty(connection.ConnectionString))
+                        {
+                            Console.WriteLine("Hacking in a new connection string");
+                            connection.ConnectionString = Configuration.GetConnectionString("DatabaseConnectionString");
+                        }
+                        Console.WriteLine($"=================================================");
+                        Console.WriteLine($"Returning DB connection");
+                        Console.WriteLine($"    State: {connection.State}");
+                        Console.WriteLine($"    cstr:  {connection.ConnectionString}");
+                        Console.WriteLine($"=================================================");
+
+                        return connection;
+                    })
                 .UseStructureMapBuilder(container)
                 .UseNewtonsoftJsonSerializer()
+                //.UseErrorQueue()
                 //.UseNLogFactory()
                 .UseOutbox()
                 .UseUnitOfWork();
@@ -113,6 +146,9 @@ namespace NServiceBus.Test
 
                 config.AddRegistry<NServiceBusClientUnitOfWorkRegistry>();
                 config.AddRegistry<UnitOfWorkRegistry>();
+
+                //config.AddRegistry<SqlServerUnitOfWorkRegistry>();
+                //config.AddRegistry<EntityFrameworkUnitOfWorkRegistry<FooDbContext>>();
 
                 //config
                 //    .For<DbTransaction>()

@@ -10,7 +10,8 @@ namespace NServiceBus.Test.Controllers
     {
         private IUnitOfWorkContext _unitOfWorkContext;
 
-        private ISender _sender;
+        private readonly ISender _sender;
+
         public HomeController(ISender sender, IUnitOfWorkContext unitOfWorkContext)
         {
             _sender = sender;
