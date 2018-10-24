@@ -2,9 +2,9 @@
 using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 
-namespace Azure.Functions.V1
+namespace Azure.Functions.V1.Extensions
 {
-    public static class BrokerMessageExtensions
+    public static class BrokeredMessageExtensions
     {
         public static T DeserializeJsonMessage<T>(this BrokeredMessage message)
         {

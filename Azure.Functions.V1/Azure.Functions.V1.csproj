@@ -4,11 +4,24 @@
     <AzureFunctionsVersion>v1</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.19" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <Compile Remove="IoC\DefaultRegistry.cs" />
+    <Compile Remove="IoC\InjectAttribute.cs" />
+    <Compile Remove="IoC\InjectAttributeBinding.cs" />
+    <Compile Remove="IoC\InjectAttributeBindingProvider.cs" />
+    <Compile Remove="IoC\InjectAttributeExtensionConfigProvider.cs" />
+    <Compile Remove="IoC\InjectAttributeValueProvider.cs" />
+    <Compile Remove="IoC\IObjectResolver.cs" />
+    <Compile Remove="IoC\StructureMapObjectResolver.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.13" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="5.0.1" />
+    <PackageReference Include="StructureMap" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Azure.Functions.V1.Extensions\Azure.Functions.V1.Extensions.csproj" />
     <ProjectReference Include="..\NServiceBus.Test.Domain\NServiceBus.Test.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -22,5 +35,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="IoC\" />
   </ItemGroup>
 </Project>

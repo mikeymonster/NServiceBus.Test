@@ -11,11 +11,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="3.0.1" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="5.0.1" />
     <PackageReference Include="SFA.DAS.NServiceBus.Mvc" Version="1.0.46" />
-    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="3.0.1" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="2.1.1" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="2.1.1" />
+    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="5.0.1" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="3.2.2" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="3.2.2" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="1.4.0" />
   </ItemGroup>

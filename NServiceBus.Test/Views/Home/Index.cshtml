@@ -12,14 +12,11 @@
     <title>Index</title>
 </head>
 <body>
-    <form asp-action="Index" method="post">
+    <form asp-action="Index" method="post" defaultButton="btnSubmit">
         <label asp-for="Message">Message:</label>
         <input asp-for="Message" value="@Model.Message" />
-        <input class="button" type="submit" value="Send message">
+        <input id="btnSubmit" class="button" type="submit" value="Send message">
     </form>
 
-    @*<div>
-            <a href="~/Home/Send">Send</a>
-        </div>*@
 </body>
 </html>

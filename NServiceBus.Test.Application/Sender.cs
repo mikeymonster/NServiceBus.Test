@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using NServiceBus.Test.Domain.Configuration;
 using NServiceBus.Test.Domain.Events;
-using NServiceBus.Test.Domain.Messages;
 //using SFA.DAS.NLog.Logger;
 using SFA.DAS.NServiceBus;
+using SFA.DAS.NServiceBus.ClientOutbox;
 using SFA.DAS.UnitOfWork;
 
 //using SFA.DAS.UnitOfWork;
@@ -21,8 +21,7 @@ namespace NServiceBus.Test.Application
         //private ILog _log;
         private NServiceBusConfiguration _nServiceBusConfig;
         private IUnitOfWorkContext _unitOfWorkContext;
-
-
+        
         public IEventPublisher Publisher { get; private set; }
 
         public IEndpointInstance EndpointInstance { get; private set; }
@@ -60,6 +59,12 @@ namespace NServiceBus.Test.Application
                 Console.WriteLine(ex);
                 throw;
             }
+        }
+
+        //public static Task ProcessOutboxMessages([TimerTrigger("0 */10 * * * *")] TimerInfo timer, TraceWriter logger)
+        public static Task ProcessOutboxMessages(IProcessClientOutboxMessagesJob job)
+        {
+            return job.RunAsync();
         }
     }
 }

@@ -5,18 +5,22 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Persistence;
+using NServiceBus.Persistence.Sql;
 using NServiceBus.Test.Application;
 using NServiceBus.Test.Domain.Configuration;
 using NServiceBus.Test.Domain.Events;
 using NServiceBus.Test.Domain.Messages;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
+using SFA.DAS.NServiceBus.ClientOutbox;
 //using SFA.DAS.NServiceBus.SqlServer;
 using SFA.DAS.UnitOfWork;
 using SFA.DAS.UnitOfWork.Mvc;
 using SFA.DAS.NServiceBus.StructureMap;
 using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.SqlServer;
+using SFA.DAS.NServiceBus.SqlServer.ClientOutbox;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;
 using StructureMap;
@@ -54,13 +58,8 @@ namespace NServiceBus.Test
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<DbConnection>(provider
-                =>
-            {
-                Console.WriteLine($"Getting a new SqlConnection  - '{Configuration.GetConnectionString("DatabaseConnectionString")}'");
-                return new SqlConnection(
-                    Configuration.GetConnectionString("DatabaseConnectionString"));
-            });
+            services.AddTransient<DbConnection>(provider => 
+                new SqlConnection(Configuration.GetConnectionString("DatabaseConnectionString")));
 
             //Need the serviceprovider so we can get the DBConnection back 
             var sp = services.BuildServiceProvider();
@@ -80,33 +79,14 @@ namespace NServiceBus.Test
                     () => nServiceBusSettings.ServiceBusConnectionString,
                     r =>
                     {
-                        r.RouteToEndpoint(typeof(StringMessage),
-                            nServiceBusSettings.Endpoint);
-                        r.RouteToEndpoint(typeof(StringMessageEvent),
-                            nServiceBusSettings.Endpoint + "/my-topic");
+                        //r.RouteToEndpoint(typeof(StringMessage),
+                        //    nServiceBusSettings.Endpoint);
+                        //r.RouteToEndpoint(typeof(StringMessageEvent),
+                        //    nServiceBusSettings.Endpoint + "/my-topic");
                     })
                 .UseLicense(nServiceBusSettings.LicenceText)
                 .UseInstallers()
-                .UseSqlServerPersistence(
-                    () =>
-                    {
-                        //sp.GetService<DbConnection>();
-
-                        var connection = sp.GetService<DbConnection>();
-
-                        if (String.IsNullOrEmpty(connection.ConnectionString))
-                        {
-                            Console.WriteLine("Hacking in a new connection string");
-                            connection.ConnectionString = Configuration.GetConnectionString("DatabaseConnectionString");
-                        }
-                        Console.WriteLine($"=================================================");
-                        Console.WriteLine($"Returning DB connection");
-                        Console.WriteLine($"    State: {connection.State}");
-                        Console.WriteLine($"    cstr:  {connection.ConnectionString}");
-                        Console.WriteLine($"=================================================");
-
-                        return connection;
-                    })
+                .UseSqlServerPersistence(() => sp.GetService<DbConnection>())
                 .UseStructureMapBuilder(container)
                 .UseNewtonsoftJsonSerializer()
                 //.UseErrorQueue()
@@ -120,8 +100,7 @@ namespace NServiceBus.Test
 
             return container.GetInstance<IServiceProvider>();
         }
-
-
+        
         private IContainer ConfigureIOC(IServiceCollection services)
         {
             var container = new global::StructureMap.Container();
@@ -137,26 +116,38 @@ namespace NServiceBus.Test
 
 
                 config.For<IConfiguration>().Use(Configuration);
-
-
+                
                 //config.Scan(scanner =>
                 //{
                 //});
+
                 config.For<ISender>().Use<Sender>();
 
                 config.AddRegistry<NServiceBusClientUnitOfWorkRegistry>();
                 config.AddRegistry<UnitOfWorkRegistry>();
-
-                //config.AddRegistry<SqlServerUnitOfWorkRegistry>();
-                //config.AddRegistry<EntityFrameworkUnitOfWorkRegistry<FooDbContext>>();
-
-                //config
-                //    .For<DbTransaction>()
-                //    .Use(c => GetSqlSessionFromContext(c).Transaction);
+                
+                config
+                    .For<DbTransaction>()
+                    .Use(c => GetSqlSessionFromContext(c).Transaction);
             });
 
             return container;
         }
 
+        private ISqlStorageSession GetSqlSessionFromContext(IContext iocContext)
+        {
+            var unitOfWorkContext = iocContext.GetInstance<IUnitOfWorkContext>();
+
+            //var maybeClientSession = unitOfWorkContext.TryGet<IClientOutboxTransaction>();
+            var maybeClientSession = unitOfWorkContext.Get<IClientOutboxTransaction>();
+
+            if (maybeClientSession != null)
+                return maybeClientSession.GetSqlSession();
+
+            return
+                unitOfWorkContext
+                    .Get<SynchronizedStorageSession>()
+                    .GetSqlSession();
+        }
     }
 }
