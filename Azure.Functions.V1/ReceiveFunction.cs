@@ -16,8 +16,8 @@ namespace Azure.Functions.V1
         public static void Run(
             [ServiceBusTrigger("das-test-endpoint", AccessRights.Manage, Connection = "ServiceBusConnectionString")]
             BrokeredMessage message,
-            [NServiceBusSubscription("das-test-endpoint", "das-test-subscription", "ServiceBusConnectionString")]
-            object subscription,
+            //[NServiceBusSubscription("das-test-endpoint", "das-test-subscription", "ServiceBusConnectionString")]
+            //object subscription,
             ExecutionContext executionContext,
             TraceWriter log)
         {

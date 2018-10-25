@@ -18,20 +18,12 @@
       "defaultValue": "das-test-endpoint",
       "type": "String"
     },
-    "queues_das_test_endpoint_publisher_name": {
-      "defaultValue": "das-test-endpoint-publisher",
-      "type": "String"
-    },
     "AuthorizationRules_RootManageSharedAccessKey_name": {
       "defaultValue": "RootManageSharedAccessKey",
       "type": "String"
     },
     "subscriptions_das_test_endpoint_name": {
       "defaultValue": "das-test-endpoint",
-      "type": "String"
-    },
-    "subscriptions_das_test_endpoint_publisher_name": {
-      "defaultValue": "das-test-endpoint-publisher",
       "type": "String"
     },
     "rules_NServiceBus.Test.Domain.Events.StringMessageEvent_name": {
@@ -85,32 +77,6 @@
       "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/queues/das-test-endpoint'.",
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_das_test_endpoint_name'))]",
-      "apiVersion": "2017-04-01",
-      "location": "West US",
-      "scale": null,
-      "properties": {
-        "lockDuration": "PT5M",
-        "maxSizeInMegabytes": 5120,
-        "requiresDuplicateDetection": false,
-        "requiresSession": false,
-        "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
-        "deadLetteringOnMessageExpiration": false,
-        "enableBatchedOperations": true,
-        "duplicateDetectionHistoryTimeWindow": "PT10M",
-        "maxDeliveryCount": 2147483647,
-        "status": "Active",
-        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
-        "enablePartitioning": false,
-        "enableExpress": false
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_nservicebus_test_name'))]"
-      ]
-    },
-    {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/queues/das-test-endpoint-publisher'.",
-      "type": "Microsoft.ServiceBus/namespaces/queues",
-      "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_das_test_endpoint_publisher_name'))]",
       "apiVersion": "2017-04-01",
       "location": "West US",
       "scale": null,
@@ -200,30 +166,6 @@
         "enableBatchedOperations": true,
         "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
         "forwardTo": "[parameters('subscriptions_das_test_endpoint_name')]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_nservicebus_test_name'))]",
-        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('namespaces_nservicebus_test_name'), parameters('topics_bundle_1_name'))]"
-      ]
-    },
-    {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/topics/bundle-1/subscriptions/das-test-endpoint-publisher'.",
-      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
-      "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_endpoint_publisher_name'))]",
-      "apiVersion": "2017-04-01",
-      "location": "West US",
-      "scale": null,
-      "properties": {
-        "lockDuration": "PT5M",
-        "requiresSession": false,
-        "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
-        "deadLetteringOnMessageExpiration": false,
-        "deadLetteringOnFilterEvaluationExceptions": false,
-        "maxDeliveryCount": 2147483647,
-        "status": "Active",
-        "enableBatchedOperations": true,
-        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
-        "forwardTo": "[parameters('subscriptions_das_test_endpoint_publisher_name')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_nservicebus_test_name'))]",
