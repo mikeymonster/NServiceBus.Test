@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namespaces_nservicebus_test_name": {
+      "value": "nservicebus-test"
+    },
+    "queues_error_name": {
+      "value": "error"
+    },
+    "topics_bundle_1_name": {
+      "value": "bundle-1"
+    },
+    "queues_das_test_endpoint_name": {
+      "value": "das-test-endpoint"
+    },
+    "queues_das_test_endpoint_publisher_name": {
+      "value": "das-test-endpoint-publisher"
+    },
+    "AuthorizationRules_RootManageSharedAccessKey_name": {
+      "value": "RootManageSharedAccessKey"
+    },
+    "subscriptions_das_test_endpoint_name": {
+      "value": "das-test-endpoint"
+    },
+    "subscriptions_das_test_endpoint_publisher_name": {
+      "value": "das-test-endpoint-publisher"
+    },
+    "rules_NServiceBus.Test.Domain.Events.StringMessageEvent_name": {
+      "value": "NServiceBus.Test.Domain.Events.StringMessageEvent"
+    }
+  }
+}

@@ -9,8 +9,6 @@ using NServiceBus.Persistence;
 using NServiceBus.Persistence.Sql;
 using NServiceBus.Test.Application;
 using NServiceBus.Test.Domain.Configuration;
-using NServiceBus.Test.Domain.Events;
-using NServiceBus.Test.Domain.Messages;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
 using SFA.DAS.NServiceBus.ClientOutbox;
@@ -24,7 +22,6 @@ using SFA.DAS.NServiceBus.SqlServer.ClientOutbox;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;
 using StructureMap;
-using StructureMap.TypeRules;
 
 namespace NServiceBus.Test
 {

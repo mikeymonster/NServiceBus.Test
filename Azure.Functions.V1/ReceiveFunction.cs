@@ -23,13 +23,6 @@ namespace Azure.Functions.V1
         {
             log.Info($"C# ServiceBus queue trigger receiving message: {message.MessageId}");
 
-            //try
-            //{
-            //    var stringMessage = message.DeserializeJsonMessage<StringMessage>();
-            //    log.Info($"C# ServiceBus queue trigger function processed message: {stringMessage}");
-            //}
-            //catch
-            //{
             try
             {
                 Debug.WriteLine($"Receiving message - content type '{message.ContentType}', label '{message.Label}', delivery count {message.DeliveryCount}");
@@ -46,7 +39,6 @@ namespace Azure.Functions.V1
                 log.Error($"Unable to deserialize message body for StringMessage. messageId: {message.MessageId} {{ID={executionContext.InvocationId}}}", e);
                 message.Defer();
             }
-            //}
         }
 
         /*

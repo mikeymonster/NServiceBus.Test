@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Configuration;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Protocols;
+using Microsoft.ServiceBus;
 using NServiceBus;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
@@ -62,7 +66,33 @@ namespace Azure.Functions.V1.NServiceBus
             {
                 var connectionString = Environment.GetEnvironmentVariable(connectionStringName, EnvironmentVariableTarget.Process);
 
-                bool endpointAlreadyConfigured = false; //TODO: Get this from Azure somehow
+                bool endpointAlreadyConfigured = false;
+
+                //ignore case?
+                var tokenizerRegex = new Regex("^Endpoint=(?<endpoint>.*);SharedAccessKeyName=(?<sharedAccessKeyName>.*);SharedAccessKey=(?<sharedAccessKey>.*)$");
+                var match = tokenizerRegex.Match(connectionString);
+                if (!match.Success)
+                {
+                    throw new ConfigurationErrorsException("Connection string could not be parsed.");
+                }
+
+                var endpointAddress = match.Groups["endpoint"].Value;
+                var sharedAccessKeyName = match.Groups["sharedAccessKeyName"].Value;
+                var sharedAccessKey = match.Groups["sharedAccessKey"].Value;
+
+                Debug.WriteLine($"Found match endpointAddress='{endpointAddress}', sharedAccessKeyName ='{sharedAccessKeyName}', sharedAccessKey='{sharedAccessKey}'");       
+                
+                //https://github.com/Particular/NServiceBus.AzureServiceBus/issues/667
+                var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(sharedAccessKeyName, sharedAccessKey);
+                var namespaceManager = new NamespaceManager(endpointAddress, tokenProvider);
+
+                var queues = await namespaceManager.GetQueuesAsync();
+                var topics = await namespaceManager.GetTopicsAsync();
+                //var topic1 = topics.First().Path;
+                //var subscriptions = await namespaceManager.GetSubscriptionsAsync("bundle-1");
+
+                endpointAlreadyConfigured = queues.Any(q => q.Path == "das-test-endpoint");
+
                 if (!endpointAlreadyConfigured)
                 {
                     var endpointConfiguration = new EndpointConfiguration(endPointName)
@@ -78,14 +108,10 @@ namespace Azure.Functions.V1.NServiceBus
 
                     Console.WriteLine($"Started endpoint {endPointName}");
 
-                    var stop = true;
-                    if (stop)
-                    {
-                        await
-                            endpointInstance
-                                .Stop()
-                                .ConfigureAwait(false);
-                    }
+                    await
+                        endpointInstance
+                            .Stop()
+                            .ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

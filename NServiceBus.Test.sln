@@ -20,7 +20,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Test.Console", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp2", "FunctionApp2\FunctionApp2.csproj", "{268BFDE5-419F-42A0-B179-9711817D3B41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Functions.V1.Extensions", "Azure.Functions.V1.Extensions\Azure.Functions.V1.Extensions.csproj", "{A5227D6F-8DAE-4A4B-9FCC-9BF141933C0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.Functions.V1.Extensions", "Azure.Functions.V1.Extensions\Azure.Functions.V1.Extensions.csproj", "{A5227D6F-8DAE-4A4B-9FCC-9BF141933C0E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{0038E971-7E20-4FAA-9BF1-4BB811D3307D}"
+	ProjectSection(SolutionItems) = preProject
+		Azure\deploy.ps1 = Azure\deploy.ps1
+		Azure\parameters.json = Azure\parameters.json
+		Azure\template.json = Azure\template.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
