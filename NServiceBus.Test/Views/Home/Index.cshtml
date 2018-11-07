@@ -13,9 +13,34 @@
 </head>
 <body>
     <form asp-action="Index" method="post" defaultButton="btnSubmit">
-        <label asp-for="Message">Message:</label>
-        <input asp-for="Message" value="@Model.Message" />
-        <input id="btnSubmit" class="button" type="submit" value="Send message">
+        <p>
+            <label asp-for="Message">Message:</label>
+            <input asp-for="Message" value="@Model.Message" />
+        </p>
+
+        <p>
+            <label asp-for="SendComplexMessage">Complex Message?</label>
+            <input asp-for="SendComplexMessage" value="true" />
+        </p>
+
+        <p>
+            <label asp-for="Description">Description:</label>
+            <input asp-for="Description" value="@Model.Description" />
+        </p>
+
+        <p>
+            <label asp-for="UserName">UserName:</label>
+            <input asp-for="UserName" value="@Model.UserName" />
+        </p>
+
+        <p>
+            <label asp-for="Count">Count:</label>
+            <input asp-for="Count" value="@Model.Count" />
+        </p>
+
+        <p>
+            <input id="btnSubmit" class="button" type="submit" value="Send">
+        </p>
     </form>
 
 </body>

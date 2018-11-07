@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using SFA.DAS.NServiceBus;
 
 namespace NServiceBus.Test.Domain.Events
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class StringMessageEvent : Event
     {
         public string Message { get; set; }
@@ -19,7 +21,9 @@ namespace NServiceBus.Test.Domain.Events
 
         public override string ToString()
         {
-            return $"'{Message}' sent at {Created:dd/MM/yy HH:mm:ss.ffffff}";
+            return $"'{Message}' created {Created:dd/MM/yy HH:mm:ss.ffffff}";
         }
+
+        private string DebuggerDisplay => ToString();
     }
 }

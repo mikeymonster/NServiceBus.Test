@@ -12,9 +12,9 @@ namespace Azure.Functions.V1
 {
     public static class ReceiveFunction
     {
-        [FunctionName("ServiceBusReceiveQueue")]
-        public static void Run(
-            [ServiceBusTrigger("das-test-endpoint", AccessRights.Manage, Connection = "ServiceBusConnectionString")]
+        [FunctionName("ServiceBusReceiveStringMessageFromQueue")]
+        public static void RunStringMessage(
+            [ServiceBusTrigger("das-test-string-messages", AccessRights.Manage, Connection = "ServiceBusConnectionString")]
             BrokeredMessage message,
             //[NServiceBusSubscription("das-test-endpoint", "das-test-subscription", "ServiceBusConnectionString")]
             //object subscription,
@@ -25,14 +25,35 @@ namespace Azure.Functions.V1
 
             try
             {
-                Debug.WriteLine($"Receiving message - content type '{message.ContentType}', label '{message.Label}', delivery count {message.DeliveryCount}");
-                foreach (var property in message.Properties)
-                {
-                    Debug.WriteLine($"    {property.Key} = {property.Value}");
-                }
+                //Debug.WriteLine($"Receiving message - content type '{message.ContentType}', label '{message.Label}', delivery count {message.DeliveryCount}");
+                //foreach (var property in message.Properties)
+                //{
+                //    Debug.WriteLine($"    {property.Key} = {property.Value}");
+                //}
 
                 var stringMessageEvent = message.DeserializeJsonMessage<StringMessageEvent>();
                 log.Info($"C# ServiceBus queue trigger function processed event: {stringMessageEvent}");
+            }
+            catch (Exception e)
+            {
+                log.Error($"Unable to deserialize message body for StringMessage. messageId: {message.MessageId} {{ID={executionContext.InvocationId}}}", e);
+                message.Defer();
+            }
+        }
+
+        [FunctionName("ServiceBusReceiveComplexMessageFromQueue")]
+        public static void RunComplexMessage(
+            [ServiceBusTrigger("das-test-complex-messages", AccessRights.Manage, Connection = "ServiceBusConnectionString")]
+            BrokeredMessage message,
+            ExecutionContext executionContext,
+            TraceWriter log)
+        {
+            log.Info($"C# ServiceBus queue trigger receiving message: {message.MessageId}");
+
+            try
+            {
+                var complexMessageEvent = message.DeserializeJsonMessage<ComplexMessageEvent>();
+                log.Info($"C# ServiceBus queue trigger function processed event: {complexMessageEvent}");
             }
             catch (Exception e)
             {

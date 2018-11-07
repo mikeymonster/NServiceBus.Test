@@ -8,7 +8,7 @@ namespace NServiceBus.Test.Controllers
 {
     public class HomeController : Controller
     {
-        private IUnitOfWorkContext _unitOfWorkContext;
+        private readonly IUnitOfWorkContext _unitOfWorkContext;
 
         private readonly ISender _sender;
 
@@ -30,8 +30,14 @@ namespace NServiceBus.Test.Controllers
         {
             try
             {
-                var message = messageModel.Message ?? "Default mesage";
-                await _sender.Send(message);
+                if (messageModel.SendComplexMessage)
+                {
+                    await _sender.PublishComplexMessage(messageModel.Description, messageModel.UserName, messageModel.Count);
+                }
+                else
+                {
+                    await _sender.PublishStringMessage(messageModel.Message ?? "Default message");
+                }
 
                 return View(messageModel);
             }

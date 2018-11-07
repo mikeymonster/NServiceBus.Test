@@ -7,15 +7,8 @@ using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.ClientOutbox;
 using SFA.DAS.UnitOfWork;
 
-//using SFA.DAS.UnitOfWork;
-
 namespace NServiceBus.Test.Application
 {
-    public interface ISender
-    {
-        Task Send(string message);
-    }
-
     public class Sender : ISender
     {
         //private ILog _log;
@@ -39,7 +32,7 @@ namespace NServiceBus.Test.Application
             _unitOfWorkContext = unitOfWorkContext;
         }
 
-        public async Task Send(string message)
+        public async Task PublishStringMessage(string message)
         {
             try
             {
@@ -50,6 +43,22 @@ namespace NServiceBus.Test.Application
                 //System.Console.WriteLine($"Sent message: {messageCommand}");
 
                 var messageEvent = new StringMessageEvent(message);
+                System.Console.WriteLine($"Publishing event: {messageEvent}");
+                await Publisher.Publish(messageEvent);
+                System.Console.WriteLine($"Published event: {messageEvent}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public async Task PublishComplexMessage(string description, string username, int count)
+        {
+            try
+            {
+                var messageEvent = new ComplexMessageEvent(description, username, count);
                 System.Console.WriteLine($"Publishing event: {messageEvent}");
                 await Publisher.Publish(messageEvent);
                 System.Console.WriteLine($"Published event: {messageEvent}");
