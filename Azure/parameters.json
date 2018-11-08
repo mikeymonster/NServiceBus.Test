@@ -11,6 +11,9 @@
     "topics_bundle_1_name": {
       "value": "bundle-1"
     },
+    "queues_das_test_endpoint_publisher_name": {
+      "value": "das-test-endpoint-publisher"
+    },
     "queues_das_test_string_messages_name": {
       "value": "das-test-string-messages"
     },
@@ -20,11 +23,17 @@
     "AuthorizationRules_RootManageSharedAccessKey_name": {
       "value": "RootManageSharedAccessKey"
     },
+    "subscriptions_das_test_endpoint_publisher_name": {
+      "value": "das-test-endpoint-publisher"
+    },
     "subscriptions_das_test_string_messages_name": {
       "value": "das-test-string-messages"
     },
     "subscriptions_das_test_complex_messages_name": {
       "value": "das-test-complex-messages"
+    },
+    "rules_$default_name": {
+      "value": "$default"
     },
     "rules_NServiceBus.Test.Domain.Events.StringMessageEvent_name": {
       "value": "NServiceBus.Test.Domain.Events.StringMessageEvent"

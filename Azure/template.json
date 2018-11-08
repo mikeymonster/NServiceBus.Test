@@ -14,6 +14,10 @@
       "defaultValue": "bundle-1",
       "type": "String"
     },
+    "queues_das_test_endpoint_publisher_name": {
+      "defaultValue": "das-test-endpoint-publisher",
+      "type": "String"
+    },
     "queues_das_test_string_messages_name": {
       "defaultValue": "das-test-string-messages",
       "type": "String"
@@ -26,12 +30,20 @@
       "defaultValue": "RootManageSharedAccessKey",
       "type": "String"
     },
+    "subscriptions_das_test_endpoint_publisher_name": {
+      "defaultValue": "das-test-endpoint-publisher",
+      "type": "String"
+    },
     "subscriptions_das_test_string_messages_name": {
       "defaultValue": "das-test-string-messages",
       "type": "String"
     },
     "subscriptions_das_test_complex_messages_name": {
       "defaultValue": "das-test-complex-messages",
+      "type": "String"
+    },
+    "rules_$default_name": {
+      "defaultValue": "$default",
       "type": "String"
     },
     "rules_NServiceBus.Test.Domain.Events.StringMessageEvent_name": {
@@ -46,7 +58,7 @@
   "variables": {},
   "resources": [
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourceGroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test'.",
+      "comments": "NServiceBus test namespace.",
       "type": "Microsoft.ServiceBus/namespaces",
       "sku": {
         "name": "Standard",
@@ -68,7 +80,7 @@
       "dependsOn": []
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/AuthorizationRules/RootManageSharedAccessKey'.",
+      "comments": "Authorization Rules - Root Manage Shared Access Key.",
       "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('AuthorizationRules_RootManageSharedAccessKey_name'))]",
       "apiVersion": "2017-04-01",
@@ -86,7 +98,33 @@
       ]
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/queues/das-test-string-messages'.",
+      "comments": "Queue for publisher.",
+      "type": "Microsoft.ServiceBus/namespaces/queues",
+      "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_das_test_endpoint_publisher_name'))]",
+      "apiVersion": "2017-04-01",
+      "location": "West US",
+      "scale": null,
+      "properties": {
+        "lockDuration": "PT5M",
+        "maxSizeInMegabytes": 5120,
+        "requiresDuplicateDetection": false,
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+        "deadLetteringOnMessageExpiration": false,
+        "enableBatchedOperations": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "maxDeliveryCount": 2147483647,
+        "status": "Active",
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_nservicebus_test_name'))]"
+      ]
+    },
+    {
+      "comments": "Queue for simple string events.",
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_das_test_string_messages_name'))]",
       "apiVersion": "2017-04-01",
@@ -112,7 +150,7 @@
       ]
     },
     {
-      "comments": "Manually created config.",
+      "comments": "Queue for complex events.",
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_das_test_complex_messages_name'))]",
       "apiVersion": "2017-04-01",
@@ -138,7 +176,7 @@
       ]
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/queues/error'.",
+      "comments": "Error queue",
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('queues_error_name'))]",
       "apiVersion": "2017-04-01",
@@ -164,7 +202,7 @@
       ]
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/topics/bundle-1'.",
+      "comments": "NServicebus bundle topic",
       "type": "Microsoft.ServiceBus/namespaces/topics",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'))]",
       "apiVersion": "2017-04-01",
@@ -187,7 +225,31 @@
       ]
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/topics/bundle-1/subscriptions/das-test-string-messages'.",
+      "comments": "Subscription for Publisher.",
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_endpoint_publisher_name'))]",
+      "apiVersion": "2017-04-01",
+      "location": "West US",
+      "scale": null,
+      "properties": {
+        "lockDuration": "PT5M",
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P10675199DT2H48M5.4775807S",
+        "deadLetteringOnMessageExpiration": false,
+        "deadLetteringOnFilterEvaluationExceptions": false,
+        "maxDeliveryCount": 2147483647,
+        "status": "Active",
+        "enableBatchedOperations": true,
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "forwardTo": "[parameters('subscriptions_das_test_endpoint_publisher_name')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_nservicebus_test_name'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('namespaces_nservicebus_test_name'), parameters('topics_bundle_1_name'))]"
+      ]
+    },
+    {
+      "comments": "Subscription for simple String events.",
       "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_string_messages_name'))]",
       "apiVersion": "2017-04-01",
@@ -211,7 +273,7 @@
       ]
     },
     {
-      "comments": "Generalized from resource: '/subscriptions/b774a482-c0ef-4fa9-a9b4-676f1373dd90/resourcegroups/nservicebus-rg/providers/Microsoft.ServiceBus/namespaces/nservicebus-test/topics/bundle-1/subscriptions/das-test-string-messages/rules/NServiceBus.Test.Domain.Events.StringMessageEvent'.",
+      "comments": "Subscription rule to select simple String events.",
       "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions/rules",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_string_messages_name'), '/', parameters('rules_NServiceBus.Test.Domain.Events.StringMessageEvent_name'))]",
       "apiVersion": "2017-04-01",
@@ -231,7 +293,7 @@
       ]
     },
     {
-      "comments": "Manually created config.",
+      "comments": "Subscription for Complex events.",
       "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_complex_messages_name'))]",
       "apiVersion": "2017-04-01",
@@ -255,7 +317,7 @@
       ]
     },
     {
-      "comments": "Manually created config.",
+      "comments": "Subscription rule to select Complex events.",
       "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions/rules",
       "name": "[concat(parameters('namespaces_nservicebus_test_name'), '/', parameters('topics_bundle_1_name'), '/', parameters('subscriptions_das_test_complex_messages_name'), '/', parameters('rules_NServiceBus.Test.Domain.Events.ComplexMessageEvent_name'))]",
       "apiVersion": "2017-04-01",
