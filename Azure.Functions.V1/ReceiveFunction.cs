@@ -13,6 +13,7 @@ namespace Azure.Functions.V1
     public static class ReceiveFunction
     {
         [FunctionName("ServiceBusReceiveStringMessageFromQueue")]
+        [NServiceBusConfiguration(queue: "das-test-string-messages", subscription: "das-test-subscription", messageType: typeof(StringMessageEvent), connection: "ServiceBusConnectionString")]
         public static void RunStringMessage(
             [ServiceBusTrigger("das-test-string-messages", AccessRights.Manage, Connection = "ServiceBusConnectionString")]
             BrokeredMessage message,
