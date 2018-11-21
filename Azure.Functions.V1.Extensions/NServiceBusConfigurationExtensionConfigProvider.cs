@@ -21,13 +21,12 @@ namespace Azure.Functions.V1.Extensions
             LoadNServiceBusConfiguration();
 
             //These should come from attribute
-
         }
 
         public async Task LoadNServiceBusConfiguration()
         {
-            string connectionStringName = "ServiceBusConnectionString";
-            string queueName = "das-test-string-messages";
+            //string connectionStringName = "ServiceBusConnectionString";
+            //string queueName = "das-test-string-messages";
 
             //Load assemblies
             //var assembly = typeof();
@@ -35,7 +34,7 @@ namespace Azure.Functions.V1.Extensions
             foreach (var assembly in assemblies)
             {
                 //var assembly = assemblies.FirstOrDefault(a => a.Name == "Azure.Functions.V1");
-                Type[] types = this.FindTypes(assembly);
+                var types = FindTypes(assembly);
                 if (types != null)
                 {
                     foreach (var type in types.Where<Type>(new Func<Type, bool>(IsJobClass)))
@@ -47,40 +46,36 @@ namespace Azure.Functions.V1.Extensions
                             {
                                 if (attribute is NServiceBusConfigurationAttribute)
                                 {
-                                    CreateConfiguration((NServiceBusConfigurationAttribute) attribute);
+                                    await CreateConfiguration((NServiceBusConfigurationAttribute)attribute);
                                 }
                             }
-
                         }
                     }
                 }
             }
-
-
-            /*
-             var eventName = "MyEvent";
-var functionName = "Functionname";
-var subscriptionDescription = new SubscriptionDescription("bundle-1", functionName) {
-    UserMetadata = $"Events {functionName} is subscribed to"
-};
-var description = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
-await managementClient.DeleteRuleAsync(BundleName, description.SubscriptionName, "$Default");
-var rule = new RuleDescription();
-rule.Name = eventName;
-rule.Filter = new SqlFilter($"[NServiceBus.EnclosedMessageTypes] LIKE '%{eventName}%'");
-await managementClient.CreateRuleAsync("bundle-1", description.SubscriptionName, rule);
-             */
         }
 
         private async Task CreateConfiguration(NServiceBusConfigurationAttribute attribute)
         {
-            var connectionString = Environment.GetEnvironmentVariable(attribute.Connection, EnvironmentVariableTarget.Process);
-
             //var tokenProvider = GetTokenProvider(attribute.Connection);
 
+            var connectionString = Environment.GetEnvironmentVariable(attribute.Connection, EnvironmentVariableTarget.Process);
             var managementClient = new ManagementClient(connectionString);
-
             var queues = await managementClient.GetQueuesAsync();
+
+            /*
+            var eventName = "MyEvent";
+            var functionName = "Functionname";
+            var subscriptionDescription = new SubscriptionDescription("bundle-1", functionName) {
+                UserMetadata = $"Events {functionName} is subscribed to"
+            };
+            var description = await managementClient.CreateSubscriptionAsync(subscriptionDescription);
+            await managementClient.DeleteRuleAsync(BundleName, description.SubscriptionName, "$Default");
+            var rule = new RuleDescription();
+            rule.Name = eventName;
+            rule.Filter = new SqlFilter($"[NServiceBus.EnclosedMessageTypes] LIKE '%{eventName}%'");
+            await managementClient.CreateRuleAsync("bundle-1", description.SubscriptionName, rule);
+             */
 
         }
 
@@ -88,7 +83,7 @@ await managementClient.CreateRuleAsync("bundle-1", description.SubscriptionName,
         {
             return (IEnumerable<Assembly>)AppDomain.CurrentDomain.GetAssemblies();
         }
-        
+
         public static bool IsJobClass(Type type)
         {
             if (type == (Type)null || !type.IsClass || type.IsAbstract && !type.IsSealed || !type.IsPublic)
